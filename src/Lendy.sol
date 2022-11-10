@@ -1,3 +1,4 @@
+/*
 // SPDX-License-Identifier: MIT
 // This contract is not audited!!!
 pragma solidity ^0.8.7;
@@ -8,7 +9,6 @@ import "./AggregatorV3Interface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error TransferFailed();
-error TokenNotAllowed(address token);
 error NeedsMoreThanZero();
 
 contract Lendy is ReentrancyGuard, Ownable {
@@ -172,12 +172,13 @@ contract Lendy is ReentrancyGuard, Ownable {
             100;
         if (borrowedValueInUSD == 0) return 100e8;
         return (collateralAdjustedForThreshold * 1e8) / borrowedValueInUSD;
-    }
+    } /*
 
     /********************/
     /* Modifiers */
     /********************/
 
+    /*
     modifier isAllowedToken(address token) {
         if (s_tokenToPriceFeed[token] == address(0)) revert TokenNotAllowed(token);
         _;
@@ -189,10 +190,11 @@ contract Lendy is ReentrancyGuard, Ownable {
         }
         _;
     }
-
+    */
     /********************/
     /* DAO / OnlyOwner Functions */
     /********************/
+    /*
     function setAllowedToken(address token, address priceFeed) external onlyOwner {
         bool foundToken = false;
         uint256 allowedTokensLength = s_allowedTokens.length;
@@ -208,10 +210,9 @@ contract Lendy is ReentrancyGuard, Ownable {
         s_tokenToPriceFeed[token] = priceFeed;
         emit AllowedTokenSet(token, priceFeed);
     }
-
+    */
     /********************/
     /* Getter Functions */
     /********************/
     // Ideally, we'd have getter functions for all our s_ variables we want exposed, and set them all to private.
     // But, for the purpose of this demo, we've left them public for simplicity.
-}

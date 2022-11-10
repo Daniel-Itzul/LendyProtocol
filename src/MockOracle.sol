@@ -1,39 +1,56 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 contract MockOracle {
 
-    int mockPrice;
-    address owner;
+    struct StorageDeal {
+        string dealId;
+        uint startDate;
+        uint endDate;
+        uint estimatedRewards;
+        uint status;
+        bool locked;
+    }
+    address s_owner;
 
-    struct storageDeal {
-        address dealId;
-        uint64 startTimestamp;
-        uint64 endDate;
-        uint128 value;
+    //state variables
+    mapping ( address => string) s_linkedAddresses;
+    mapping ( string => StorageDeal[]) s_storageDeals;
+
+    constructor () {
+        s_owner = msg.sender;
     }
 
-    storageDeal[10] storageDeals;
-
-    mapping (string => storageDeals) storageProvider;
-
-    constructor (int _mockPrice) {
-        mockPrice = _mockPrice;
-        owner = msg.sender;
+    //Oracle functions
+    //Public
+    function linkAddress (string calldata linkedAddress, string calldata blsSignature) external returns (string calldata) {
+        s_linkedAddresses[msg.sender] = linkedAddress;
+        return blsSignature;
     }
 
-    function latestRoundData() external view returns (uint80, int, uint, uint, uint80) {
-        uint80 roundID = 1;
-        int price = mockPrice;
-        uint startedAt = block.timestamp - 5;
-        uint timeStamp = block.timestamp;
-        uint80 answeredInRound = 1;
-        return (roundID, price, startedAt, timeStamp, answeredInRound);
+    //OnlyOwner
+    function pushStorageDeal(string calldata dealID, uint startDate, uint endDate, uint estimatedRewards, uint status) external {
+        string memory linkedAddress = getLinkedAddress();
+        s_storageDeals[linkedAddress].push(StorageDeal(dealID, startDate, endDate, estimatedRewards, status, false));
+    }
+    //internals 
+
+
+    //Getter Functions
+    function getLinkedAddress() public view returns (string memory){
+        return s_linkedAddresses[msg.sender];
     }
 
-    function updateMockPrice(int _mockPrice) external {
-        require (msg.sender == owner, "Only owner can update price");
-        mockPrice = _mockPrice;
+    function getStorageDeals () external view returns (StorageDeal[] memory) {
+        string memory linkedAddress = getLinkedAddress();
+        return s_storageDeals[linkedAddress];
     }
+
+    //modifiers
+    modifier onlyOwner() {
+        require(msg.sender == s_owner);
+        _;
+    }
+
 
 }
